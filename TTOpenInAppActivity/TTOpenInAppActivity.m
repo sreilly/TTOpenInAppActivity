@@ -60,18 +60,23 @@
 
 - (UIImage *)activityImage
 {
-	return [UIImage imageNamed:@"TTOpenInAppActivity"];
+	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
+        return [UIImage imageNamed:@"TTOpenInAppActivity7"];
+    else
+        return [UIImage imageNamed:@"TTOpenInAppActivity"];
 }
 
 - (BOOL)canPerformWithActivityItems:(NSArray *)activityItems
 {
-	for (id activityItem in activityItems) {
+    NSUInteger count = 0;
+    
+    for (id activityItem in activityItems) {
 		if ([activityItem isKindOfClass:[NSURL class]]) {
-			return YES;
+			count++;
 		}
 	}
 	
-	return NO;
+	return (count == 1);
 }
 
 - (void)prepareWithActivityItems:(NSArray *)activityItems
@@ -118,7 +123,7 @@
     self.docController = [UIDocumentInteractionController interactionControllerWithURL:self.fileURL];
     self.docController.delegate = self;
     self.docController.UTI = [self UTIForURL:self.fileURL];
-    BOOL sucess;
+    BOOL sucess; // Sucess is true if it was possible to open the controller and there are apps available
     
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
         sucess = [self.docController presentOpenInMenuFromRect:CGRectZero inView:self.superView animated:YES];
@@ -143,6 +148,11 @@
                                               cancelButtonTitle:NSLocalizedString(@"OK", @"ok")
                                               otherButtonTitles:nil];
         [alert show];
+        
+        // Inform app that the activity has finished
+        // Return NO because the service was canceled and did not finish because of an error.
+        // http://developer.apple.com/library/ios/#documentation/uikit/reference/UIActivity_Class/Reference/Reference.html
+        [self activityDidFinish:NO];
     }
 }
 
@@ -150,6 +160,7 @@
 
 - (void) documentInteractionControllerDidDismissOpenInMenu: (UIDocumentInteractionController *) controller
 {
+    // Inform app that the activity has finished
     [self activityDidFinish:YES];
 }
 

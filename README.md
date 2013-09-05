@@ -2,11 +2,14 @@
 
 `TTOpenInAppActivity` is a `UIActivity` subclass that provides an "Open In ..." action to a `UIActivityViewController`. `TTOpenInAppActivity` uses an UIDocumentInteractionController to present all Apps than can handle the document specified with a file URL.
 
-![TTOpenInActivity screenshot](http://i49.tinypic.com/1pf29t.png "TTOpenInActivity screenshot")
+<img src=http://i40.tinypic.com/xn887b.png width="320px" />
 
 ## Used In
 
 - [PenUltimate by Evernote](https://itunes.apple.com/app/penultimate/id354098826?mt=8)
+- [Bugshot by Marco Arment](https://itunes.apple.com/de/app/bugshot/id669858907?mt=8)
+- [WriteDown - a Markdown text editor with syncing support by Nguyen Vinh](https://itunes.apple.com/app/id670733152)
+- [Trail Maker](https://itunes.apple.com/de/app/trail-maker/id651198801?l=en&mt=8)
 - Please tell me if you use TTOpenInAppActivity in your App (just submit it as an [issue](https://github.com/honkmaster/TTOpenInAppActivity/issues))! 
 
 ## Requirements
