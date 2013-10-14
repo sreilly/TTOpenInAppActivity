@@ -1,15 +1,19 @@
 # TTOpenInAppActivity
 
-`TTOpenInAppActivity` is a `UIActivity` subclass that provides an "Open In ..." action to a `UIActivityViewController`. `TTOpenInAppActivity` uses an UIDocumentInteractionController to present all Apps than can handle the document specified with a file URL.
+`TTOpenInAppActivity` is a `UIActivity` subclass that provides an "Open In ..." action to a `UIActivityViewController`. `TTOpenInAppActivity` uses an UIDocumentInteractionController to present all Apps than can handle the document specified with by the activity items.
 
 <img src=http://i40.tinypic.com/xn887b.png width="320px" />
 
 ## Used In
 
+- [Stud.IP Mobile by Tobias Tiemerding](http://www.studip-mobile.de)
 - [PenUltimate by Evernote](https://itunes.apple.com/app/penultimate/id354098826?mt=8)
 - [Bugshot by Marco Arment](https://itunes.apple.com/de/app/bugshot/id669858907?mt=8)
 - [WriteDown - a Markdown text editor with syncing support by Nguyen Vinh](https://itunes.apple.com/app/id670733152)
 - [Trail Maker](https://itunes.apple.com/de/app/trail-maker/id651198801?l=en&mt=8)
+- [Syncspace by The Infinite Kind](http://infinitekind.com/syncspace)
+- [SketchTo by The Infinite Kind](http://infinitekind.com/sketchto)
+- [Calex by Martin Stemmle](http://calexapp.com)
 - Please tell me if you use TTOpenInAppActivity in your App (just submit it as an [issue](https://github.com/honkmaster/TTOpenInAppActivity/issues))! 
 
 ## Requirements
@@ -23,7 +27,7 @@ Add the `TTOpenInAppActivity` subfolder to your project. There are no required l
 
 ## Usage.
 
-- We need do keep an referemce to the superview (UIActionSheet). In this way we dismiss the UIActionSheet ans instead display the UIDocumentInterActionController.
+- We keep a weak referemce to the superview (UIActionSheet). In this way we dismiss the UIActionSheet ans instead display the UIDocumentInterActionController.
 - `TTOpenInAppActivity` needs to be initalized with the current view (iPhone & iPad) and a) a CGRect or b) a UIBarButtonItem (both only for iPad) from where it can present the UIDocumentInterActionController.
 - See example project.
 
@@ -47,6 +51,11 @@ if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
 }
 
 ```
+
+## Contributer (Thank You!)
+
+- [Vincent Tourraine](https://github.com/vtourraine) 
+
 ## License
 
 Copyright (c) 2012-2013 Tobias Tiemerding
