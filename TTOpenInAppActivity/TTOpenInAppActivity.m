@@ -32,6 +32,21 @@
 @synthesize superView = _superView;
 @synthesize superViewController = _superViewController;
 
++ (NSBundle *)bundle
+{
+    NSBundle *bundle;
+    NSURL *openInAppActivityBundleURL = [[NSBundle mainBundle] URLForResource:@"TTOpenInAppActivity" withExtension:@"bundle"];
+
+    if (openInAppActivityBundleURL) {
+        // TTOpenInAppActivity.bundle will likely only exist when used via CocoaPods
+        bundle = [NSBundle bundleWithURL:openInAppActivityBundleURL];
+    } else {
+        bundle = [NSBundle mainBundle];
+    }
+
+    return bundle;
+}
+
 - (id)initWithView:(UIView *)view andRect:(CGRect)rect
 {
     if(self =[super init]){
@@ -57,7 +72,7 @@
 
 - (NSString *)activityTitle
 {
-	return NSLocalizedString(@"Open in ...", @"Open in ...");
+    return NSLocalizedStringFromTableInBundle(@"Open in ...", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil);
 }
 
 - (UIImage *)activityImage
@@ -101,21 +116,7 @@
         return;
     }
 
-    // Dismiss activity view
-    if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
-        // iPhone dismiss UIActivityViewController
-        [self.superViewController dismissViewControllerAnimated:YES completion:^(void){
-            if (self.fileURLs.count > 1) {
-                [self openSelectFileActionSheet];
-            }
-            else {
-                // Open UIDocumentInteractionController
-                [self openDocumentInteractionControllerWithFileURL:self.fileURLs.lastObject];
-            }
-        }];
-    } else {
-        [self.superViewController dismissPopoverAnimated:YES];
-        [((UIPopoverController *)self.superViewController).delegate popoverControllerDidDismissPopover:self.superViewController];
+    void(^presentOpenIn)(void) = ^{
         if (self.fileURLs.count > 1) {
             [self openSelectFileActionSheet];
         }
@@ -123,6 +124,20 @@
             // Open UIDocumentInteractionController
             [self openDocumentInteractionControllerWithFileURL:self.fileURLs.lastObject];
         }
+    };
+
+    //  Check to see if it's presented via popover
+    if ([self.superViewController respondsToSelector:@selector(dismissPopoverAnimated:)]) {
+        [self.superViewController dismissPopoverAnimated:YES];
+        [((UIPopoverController *)self.superViewController).delegate popoverControllerDidDismissPopover:self.superViewController];
+        
+        presentOpenIn();
+    } else if([self.superViewController presentedViewController]) {    //  Not in popover, dismiss as if iPhone
+        [self.superViewController dismissViewControllerAnimated:YES completion:^(void){
+            presentOpenIn();
+        }];
+    } else {
+        presentOpenIn();
     }
 }
 
@@ -130,7 +145,7 @@
 - (NSString *)UTIForURL:(NSURL *)url
 {
     CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)url.pathExtension, NULL);
-    return (NSString *) CFBridgingRelease(UTI);
+    return (NSString *)CFBridgingRelease(UTI) ;
 }
 
 - (void)openDocumentInteractionControllerWithFileURL:(NSURL *)fileURL
@@ -152,16 +167,14 @@
     
     if(!sucess){
         // There is no app to handle this file
-        NSString* message = NSLocalizedString(@"Your {devicemodel} doesn't have any apps that can open this document",
-                                              @"message indicating no apps were found that can open the document. {devicemodel} is replaced by the device name/kind and {devicename} is replaced by the user-specified name of the device, as in Bob's iPad.");
-        message = [message stringByReplacingOccurrencesOfString:@"{devicemodel}" withString:[UIDevice currentDevice].localizedModel];
-        message = [message stringByReplacingOccurrencesOfString:@"{devicename}" withString:[UIDevice currentDevice].name];
-        
+        NSString *deviceType = [UIDevice currentDevice].localizedModel;
+        NSString *message = [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"Your %@ doesn't seem to have any other Apps installed that can open this document.", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil), deviceType];
+
         // Display alert
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"No Suitable Apps Installed", @"title for alert indicating that no apps were found that can open the given document")
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"No suitable App installed", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil)
                                                         message:message
                                                        delegate:nil
-                                              cancelButtonTitle:NSLocalizedString(@"OK", @"ok")
+                                              cancelButtonTitle:NSLocalizedStringFromTableInBundle(@"OK", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil)
                                               otherButtonTitles:nil];
         [alert show];
         
@@ -182,7 +195,7 @@
 
 - (void)openSelectFileActionSheet
 {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedString(@"Select a file", @"Select a file")
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Select a file", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil)
                                                              delegate:self
                                                     cancelButtonTitle:nil
                                                destructiveButtonTitle:nil
@@ -192,8 +205,8 @@
         [actionSheet addButtonWithTitle:[fileURL lastPathComponent]];
     }
     
-    actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", @"Cancel")];
-    
+    actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", @"TTOpenInAppActivityLocalizable", [TTOpenInAppActivity bundle], nil)];
+
     if(UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone){
         [actionSheet showFromRect:CGRectZero inView:self.superView animated:YES];
     } else {
